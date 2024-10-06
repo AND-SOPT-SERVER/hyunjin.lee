@@ -26,7 +26,9 @@ public class DiaryRepository {
             final String body = storage.get(index);
 
             // (2-1) 불러온 값을 구성한 자료구조로 이관
-            diaryList.add(new Diary(index, body));
+            if(body != null){
+                diaryList.add(new Diary(index, body));
+            }
         }
 
         // (3) 불러온 자료구조를 응답

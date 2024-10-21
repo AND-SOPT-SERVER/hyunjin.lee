@@ -29,7 +29,11 @@ public class DiaryController {
 
         } catch (IllegalArgumentException e) {
             // 유효하지 않은 입력에 대한 에러 응답 반환
-            if(e.getMessage().equals("제목이 30자 넘었지롱롱소세지빵~")){
+            if (e.getMessage().equals("이미 있는 제목이자나. ㅠㅠ")){
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_TITLE_DUPLICATE));
+            }
+            else if(e.getMessage().equals("제목이 30자 넘었지롱롱소세지빵~")){
                 return ResponseEntity.badRequest()
                         .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_TITLE_LENGTH));
             }

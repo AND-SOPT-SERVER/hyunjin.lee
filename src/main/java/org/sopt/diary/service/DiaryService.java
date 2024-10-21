@@ -22,6 +22,11 @@ public class DiaryService {
     }
 
     public Long createDiary(String title, String content) {
+        // (0) 중복 title 검사
+        if(diaryRepository.existsByTitle(title)){
+            throw new IllegalArgumentException("이미 있는 제목이자나. ㅠㅠ");
+        }
+
         // (1) title 의 길이가 30자를 넘으면 예외처리
         if (title.length() > MAX_TITLE_LENGTH) {
             throw new IllegalArgumentException("제목이 30자 넘었지롱롱소세지빵~");

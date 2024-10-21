@@ -12,4 +12,6 @@ import java.util.List;
 public interface DiaryRepository extends JpaRepository<DiaryEntity, Long> {
     // 최근 등록된 순서로 10개의 일기만 가져오는 메서드
     List<DiaryEntity> findTop10ByOrderByCreatedAtDesc();
+
+    boolean existsByTitle(String title);
 }

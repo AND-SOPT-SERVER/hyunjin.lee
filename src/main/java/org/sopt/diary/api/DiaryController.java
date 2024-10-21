@@ -29,7 +29,15 @@ public class DiaryController {
 
         } catch (IllegalArgumentException e) {
             // 유효하지 않은 입력에 대한 에러 응답 반환
-            return ResponseEntity.badRequest()
+            if(e.getMessage().equals("제목이 30자 넘었지롱롱소세지빵~")){
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_TITLE_LENGTH));
+            }
+            else if (e.getMessage().equals("내용이 100자 넘었어용용죽겠지 ㅋㅋ")){
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_CONTENT_LENGTH));
+            }
+            else return ResponseEntity.badRequest()
                     .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_VALUE));
 
         } catch (RuntimeException e) {

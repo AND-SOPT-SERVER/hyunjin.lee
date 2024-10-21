@@ -32,6 +32,8 @@ public class ErrorResponse {
 
     // ErrorCode enum을 통해 에러 메시지와 코드 관리
     public enum ErrorCode {
+        INVALID_INPUT_TITLE_LENGTH(40000, "제목이 너무 길어요"),
+        INVALID_INPUT_CONTENT_LENGTH(40000, "내용이 너무 길어요"),
         INVALID_INPUT_VALUE(40001, "유효하지 않은 요청입니다."),
         INTERNAL_SERVER_ERROR(50000, "서버 내부 오류입니다.");
 

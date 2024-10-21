@@ -5,8 +5,6 @@ import org.sopt.diary.service.DiaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class DiaryController {
     ResponseEntity<DiaryListResponse> getDiaryList(){
         List<Diary> diaries = diaryService.getDiaries();
 
-        // (2) Client 와 협약한 interface 로 변환
+        // Client 와 협약한 interface 로 변환
         List<DiaryResponse> diaryResponseList = new ArrayList<>();
         for (Diary diary : diaries) {
             diaryResponseList.add(new DiaryResponse(diary.getId(), diary.getTitle()));
@@ -69,7 +67,7 @@ public class DiaryController {
     ResponseEntity<?> updateDiary(@PathVariable long diaryId, @RequestBody DiaryRequest diaryRequest) {
         try {
             Diary updateDiary = diaryService.updateDiary(diaryId, diaryRequest.getTitle(), diaryRequest.getContent());
-            return ResponseEntity.ok(new DiaryResponse(updateDiary.getId(), updateDiary.getTitle(), updateDiary.getContent(), updateDiary.getCreatedAt(), LocalDateTime.now()));
+            return ResponseEntity.ok(new DiaryResponse(updateDiary.getId(), updateDiary.getTitle(), updateDiary.getContent(), updateDiary.getCreatedAt(), updateDiary.getUpdatedAt()));
 
         } catch (IllegalArgumentException e) {
             // 유효하지 않은 입력에 대한 에러 응답 반환
@@ -78,6 +76,25 @@ public class DiaryController {
 
         } catch (RuntimeException e) {
             // 서버 내부 오류에 대한 에러 응답 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(ErrorResponse.ErrorCode.INTERNAL_SERVER_ERROR));
+        }
+    }
+
+    @DeleteMapping("/luckybicky/diaries/{diaryId}")
+    ResponseEntity<?> deleteDiary(@PathVariable long diaryId) {
+        try {
+            // 다이어리 삭제
+            diaryService.deleteDiary(diaryId);
+            return ResponseEntity.ok().build();
+
+        } catch (IllegalArgumentException e){
+            // 유효하지 않은 다이어리 ID에 대한 에러 처리
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_VALUE));
+
+        } catch (RuntimeException e) {
+            // 서버 내부 오류에 대한 에러 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(ErrorResponse.ErrorCode.INTERNAL_SERVER_ERROR));
         }

@@ -76,4 +76,13 @@ public class DiaryService {
 
         return new Diary(updatedDiary.getId(), updatedDiary.getTitle(), updatedDiary.getContent(), updatedDiary.getCreatedAt(), updatedDiary.getUpdatedAt());
     }
+
+    public void deleteDiary(Long id) {
+        // 다이어리 존재 여부 확인
+        DiaryEntity diaryEntity = diaryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("없는 다이어리를 어떻게 지우냐? ㅋㅋ"));
+
+        // 다이어리 삭제
+        diaryRepository.delete(diaryEntity);
+    }
 }

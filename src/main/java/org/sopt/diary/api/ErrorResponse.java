@@ -1,11 +1,18 @@
 package org.sopt.diary.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /*
 에러 응답을 정의한 클래스
  */
 public class ErrorResponse {
+    @JsonProperty("success")
     private final boolean success;
+
+    @JsonProperty("data")
     private final Object data;
+
+    @JsonProperty("error")
     private final ErrorDetail error;
 
     // ErrorCode enum을 통해 에러 응답 생성
@@ -21,6 +28,10 @@ public class ErrorResponse {
 
     public Object getData() {
         return data;
+    }
+
+    public ErrorDetail getError() {
+        return error;
     }
 
     // 내부 에러 디테일 클래스

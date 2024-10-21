@@ -10,6 +10,7 @@ public class Diary {
     private final String title;
     private String content;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Diary(long id, String title) {
         this.id = id;
@@ -21,6 +22,14 @@ public class Diary {
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
+    }
+
+    public Diary(long id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public long getId() {
@@ -37,5 +46,9 @@ public class Diary {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

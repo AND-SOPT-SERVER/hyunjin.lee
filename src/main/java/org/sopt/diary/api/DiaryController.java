@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,5 +65,21 @@ public class DiaryController {
         return ResponseEntity.ok(new DiaryResponse(diary.getId(), diary.getTitle(), diary.getContent(), diary.getCreatedAt()));
     }
 
+    @PatchMapping("/luckybicky/diaries/{diaryId}")
+    ResponseEntity<?> updateDiary(@PathVariable long diaryId, @RequestBody DiaryRequest diaryRequest) {
+        try {
+            Diary updateDiary = diaryService.updateDiary(diaryId, diaryRequest.getTitle(), diaryRequest.getContent());
+            return ResponseEntity.ok(new DiaryResponse(updateDiary.getId(), updateDiary.getTitle(), updateDiary.getContent(), updateDiary.getCreatedAt(), LocalDateTime.now()));
 
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 입력에 대한 에러 응답 반환
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(ErrorResponse.ErrorCode.INVALID_INPUT_VALUE));
+
+        } catch (RuntimeException e) {
+            // 서버 내부 오류에 대한 에러 응답 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(ErrorResponse.ErrorCode.INTERNAL_SERVER_ERROR));
+        }
+    }
 }

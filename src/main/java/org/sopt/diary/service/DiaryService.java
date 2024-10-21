@@ -4,6 +4,7 @@ import org.sopt.diary.repository.DiaryEntity;
 import org.sopt.diary.repository.DiaryRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class DiaryService {
     }
 
     public Long createDiary(String title, String content) {
-        // (1) title의 길이가 30자를 넘으면 예외처리
+        // (1) title 의 길이가 30자를 넘으면 예외처리
         if (title.length() > MAX_TITLE_LENGTH) {
             throw new IllegalArgumentException("제목이 30자 넘었지롱롱소세지빵~");
         }
@@ -56,5 +57,23 @@ public class DiaryService {
         return diaryEntity != null
                 ? new Diary(diaryEntity.getId(), diaryEntity.getTitle(), diaryEntity.getContent(), diaryEntity.getCreatedAt())
                 : null;
+    }
+
+    public Diary updateDiary(Long id, String title, String content) {
+        // 다이어리 존재 여부 확인
+        DiaryEntity diaryEntity = diaryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 다이어리입니다."));
+
+        // 제목, 내용 수정
+        diaryEntity.setTitle(title);
+        diaryEntity.setContent(content);
+
+        // 수정 시간 갱신
+        diaryEntity.setUpdatedAt(LocalDateTime.now());
+
+        // 수정 다이어리 반환~
+        DiaryEntity updatedDiary = diaryRepository.save(diaryEntity);
+
+        return new Diary(updatedDiary.getId(), updatedDiary.getTitle(), updatedDiary.getContent(), updatedDiary.getCreatedAt(), updatedDiary.getUpdatedAt());
     }
 }

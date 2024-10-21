@@ -11,6 +11,7 @@ public class DiaryResponse {
     private String title;
     private String content;
     private String createdAt;
+    private String updatedAt;
 
     // id만 반환하는 생성자
     public DiaryResponse(long id) {
@@ -33,6 +34,14 @@ public class DiaryResponse {
         this.createdAt = createdAt.format(formatter);
     }
 
+    public DiaryResponse(long id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm:ss"));
+        this.updatedAt = updatedAt.format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm:ss"));
+    }
+
     public long getId() {
         return id;
     }
@@ -47,5 +56,9 @@ public class DiaryResponse {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
     }
 }

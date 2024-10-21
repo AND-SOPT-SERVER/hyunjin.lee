@@ -4,10 +4,7 @@ import org.sopt.diary.service.Diary;
 import org.sopt.diary.service.DiaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +48,20 @@ public class DiaryController {
         // (2) Client 와 협약한 interface 로 변환
         List<DiaryResponse> diaryResponseList = new ArrayList<>();
         for (Diary diary : diaries) {
-            diaryResponseList.add(new DiaryResponse(diary.getId(), diary.getName()));
+            diaryResponseList.add(new DiaryResponse(diary.getId(), diary.getTitle()));
         }
 
         return ResponseEntity.ok(new DiaryListResponse(diaryResponseList));
+    }
+
+    @GetMapping("/luckybicky/diaries/{diaryId}")
+    ResponseEntity<DiaryResponse> getDiary(@PathVariable long diaryId) {
+        Diary diary = diaryService.getDiaryDetailById(diaryId);
+        if(diary == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(new DiaryResponse(diary.getId(), diary.getTitle(), diary.getContent(), diary.getCreatedAt()));
     }
 
 

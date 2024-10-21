@@ -51,4 +51,10 @@ public class DiaryService {
         return diaries;
     }
 
+    public Diary getDiaryDetailById(Long id) {
+        DiaryEntity diaryEntity = diaryRepository.findById(id).orElse(null);
+        return diaryEntity != null
+                ? new Diary(diaryEntity.getId(), diaryEntity.getTitle(), diaryEntity.getContent(), diaryEntity.getCreatedAt())
+                : null;
+    }
 }

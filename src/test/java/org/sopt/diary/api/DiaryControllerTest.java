@@ -11,6 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
@@ -101,8 +103,42 @@ class DiaryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.diaries[0].id").value(diary1.getId()))
-                .andExpect(jsonPath("$.diaries[0].name").value(diary1.getName()))
+                .andExpect(jsonPath("$.diaries[0].title").value(diary1.getTitle()))
                 .andExpect(jsonPath("$.diaries[1].id").value(diary2.getId()))
-                .andExpect(jsonPath("$.diaries[1].name").value(diary2.getName()));
+                .andExpect(jsonPath("$.diaries[1].title").value(diary2.getTitle()));
+    }
+
+    @Test
+    void testGetDiary_Success() throws Exception {
+        // given
+        long diaryId = 1L;
+        Diary diary = new Diary(diaryId, "Test Diary Title", "Test Diary Content", LocalDateTime.now());
+
+        // diaryService.getDiaryDetailById 호출 시 다이어리 반환하도록 설정
+        given(diaryService.getDiaryDetailById(diaryId)).willReturn(diary);
+
+        // when & then
+        mockMvc.perform(get("/luckybicky/diaries/{diaryId}", diaryId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(diary.getId()))
+                .andExpect(jsonPath("$.title").value(diary.getTitle()))
+                .andExpect(jsonPath("$.content").value(diary.getContent()))
+                .andExpect(jsonPath("$.createdAt").value(diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd"))));
+    }
+
+    // 다이어리 상세 조회 시 다이어리를 찾을 수 없을 때 테스트
+    @Test
+    void testGetDiary_NotFound() throws Exception {
+        // given
+        long diaryId = 1L;
+
+        // diaryService.getDiaryDetailById 호출 시 null 반환하도록 설정
+        given(diaryService.getDiaryDetailById(diaryId)).willReturn(null);
+
+        // when & then
+        mockMvc.perform(get("/luckybicky/diaries/{diaryId}", diaryId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound()); // 404 상태 코드 확인
     }
 }

@@ -1,4 +1,4 @@
-package org.sopt.diary.service;
+package org.sopt.diary.domain;
 
 import java.time.LocalDateTime;
 

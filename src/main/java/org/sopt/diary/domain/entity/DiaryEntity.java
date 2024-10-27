@@ -1,4 +1,4 @@
-package org.sopt.diary.repository;
+package org.sopt.diary.domain.entity;
 
 import jakarta.persistence.*;
 
@@ -33,14 +33,17 @@ public class DiaryEntity {
     // 생성자
     public DiaryEntity() { }
 
-    public DiaryEntity(final String title) {
-        this.title = title;
-    }
-
     public DiaryEntity(String title, String content) {
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 다이어리 수정 메서드
+    public void updateDiary(String title, String content) {
+        this.title = title;
+        this.content = content;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -50,11 +53,4 @@ public class DiaryEntity {
     public String getContent() { return content; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
-
-    // Setters
-    public void setId(Long id) { this.id = id; }
-    public void setTitle(String title) { this.title = title; }
-    public void setContent(String content) { this.content = content; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

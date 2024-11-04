@@ -27,9 +27,18 @@ public class DiaryController {
     }
 
     @PostMapping("/diaries")
-    ResponseEntity<DiaryResponse> post(@Validated @RequestBody DiaryRequest diaryRequest) {
+    ResponseEntity<DiaryResponse> post(
+            @RequestHeader("Member-Id") Long memberId,
+            @Validated @RequestBody DiaryRequest diaryRequest
+    ) {
         // 다이어리 생성
-        long diaryId = diaryService.createDiary(diaryRequest.getTitle(), diaryRequest.getContent());
+        long diaryId = diaryService.createDiary(
+                diaryRequest.getTitle(),
+                diaryRequest.getContent(),
+                diaryRequest.getCategory(),
+                diaryRequest.getIsPublic(),
+                memberId
+        );
         return ResponseEntity.ok(new DiaryResponse(diaryId));
     }
 
@@ -40,7 +49,9 @@ public class DiaryController {
     }
 
     @GetMapping("/diaries/{diaryId}")
-    ResponseEntity<DetailDiaryResponse> getDiary(@PathVariable long diaryId) {
+    ResponseEntity<DetailDiaryResponse> getDiary(
+            @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId
+    ) {
         Diary diary = diaryService.getDiaryDetailById(diaryId);
         return ResponseEntity.ok(DetailDiaryResponse.from(diary));
     }
@@ -48,9 +59,15 @@ public class DiaryController {
     @PatchMapping("/diaries/{diaryId}")
     ResponseEntity<DetailDiaryResponse> updateDiary(
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId,
+            @RequestHeader("Member-Id") Long memberId,
             @Validated @RequestBody DiaryRequest diaryRequest)
     {
-        Diary updateDiary = diaryService.updateDiary(diaryId, diaryRequest.getTitle(), diaryRequest.getContent());
+        Diary updateDiary = diaryService.updateDiary(
+                diaryId,
+                diaryRequest.getTitle(),
+                diaryRequest.getContent(),
+                memberId
+        );
         return ResponseEntity.ok(DetailDiaryResponse.from(updateDiary));
     }
 

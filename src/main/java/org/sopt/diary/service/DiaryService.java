@@ -4,7 +4,10 @@ import org.sopt.diary.api.dto.response.ErrorCode;
 import org.sopt.diary.api.exception.DiaryException;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.entity.DiaryEntity;
+import org.sopt.diary.domain.entity.DiaryEntity.Category;
+import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.domain.repository.DiaryRepository;
+import org.sopt.diary.domain.repository.MemberRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,17 +21,25 @@ public class DiaryService {
     private static final int MAX_TITLE_LENGTH = 30;
     private static final int MAX_CONTENT_LENGTH = 100;
     private final DiaryRepository diaryRepository;
+    private final MemberRepository memberRepository;
 
-    public DiaryService(DiaryRepository diaryRepository) {
+    public DiaryService(DiaryRepository diaryRepository, MemberRepository memberRepository) {
         this.diaryRepository = diaryRepository;
+        this.memberRepository = memberRepository;
     }
 
-    public Long createDiary(String title, String content) {
+    public Long createDiary(String title, String content, Category category, Boolean isPublic, Long memberId) {
+        // 존재하는 멤버인지 체크
+        SoptMember soptMember = findMemberOrThrow(memberId);
+
+        // 제목 중복체크
         if (diaryRepository.existsByTitle(title)) {
             throw new DiaryException(ErrorCode.INVALID_INPUT_TITLE_DUPLICATE);
         }
 
-        DiaryEntity savedDiary = diaryRepository.save(new DiaryEntity(title, content));
+        DiaryEntity savedDiary = diaryRepository.save(
+                new DiaryEntity(title, content, category, isPublic, soptMember)
+        );
         return savedDiary.getId();
     }
 
@@ -44,13 +55,18 @@ public class DiaryService {
         // 다이어리 존재 여부 확인
         DiaryEntity diaryEntity = findDiaryOrThrow(id);
         return new Diary(
-                diaryEntity.getId(), diaryEntity.getTitle(), diaryEntity.getContent(), diaryEntity.getCreatedAt(), diaryEntity.getUpdatedAt()
+                diaryEntity.getId(), diaryEntity.getTitle(), diaryEntity.getContent(),
+                diaryEntity.getCreatedAt(), diaryEntity.getUpdatedAt(),
+                diaryEntity.getCategory(), diaryEntity.getNickname()
         );
     }
 
-    public Diary updateDiary(Long id, String title, String content) {
+        public Diary updateDiary(Long diaryId, String title, String content, Long memberId) {
         // 다이어리 존재 여부 확인
-        DiaryEntity diaryEntity = findDiaryOrThrow(id);
+        DiaryEntity diaryEntity = findDiaryOrThrow(diaryId);
+
+        // 존재하는 멤버인지 체크
+        findMemberOrThrow(memberId);
 
         // 제목, 내용, 수정 시간 갱신
         diaryEntity.updateDiary(title, content);
@@ -71,8 +87,13 @@ public class DiaryService {
 
     private DiaryEntity findDiaryOrThrow(final Long diaryId) {
         return diaryRepository.findById(diaryId).orElseThrow(
-                        () -> new DiaryException(ErrorCode.INVALID_INPUT_VALUE)
-                );
+                () -> new DiaryException(ErrorCode.INVALID_INPUT_VALUE)
+        );
+    }
 
+    private SoptMember findMemberOrThrow(final Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
+                () -> new DiaryException(ErrorCode.USER_NOT_FOUND)
+        );
     }
 }

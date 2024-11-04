@@ -26,6 +26,7 @@ public class DiaryController {
         this.diaryService = diaryService;
     }
 
+    // 일기 작성
     @PostMapping("/diaries")
     ResponseEntity<DiaryResponse> post(
             @RequestHeader("Member-Id") Long memberId,
@@ -42,12 +43,14 @@ public class DiaryController {
         return ResponseEntity.ok(new DiaryResponse(diaryId));
     }
 
+    // 전체 일기 리스트 조회
     @GetMapping("/diaries")
     ResponseEntity<DiaryListResponse> getDiaryList() {
         List<Diary> diaries = diaryService.getDiaries();
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
+    // 일기 상세 조회
     @GetMapping("/diaries/{diaryId}")
     ResponseEntity<DetailDiaryResponse> getDiary(
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId
@@ -56,6 +59,16 @@ public class DiaryController {
         return ResponseEntity.ok(DetailDiaryResponse.from(diary));
     }
 
+    // 특정 사용자의 일기 목록 조회
+    @GetMapping("diaries/me")
+    ResponseEntity<DiaryListResponse> getMyDiaryList(
+            @RequestHeader("Member-Id") Long memberId
+            ) {
+        List<Diary> diaries = diaryService.getMyDiaries(memberId);
+        return ResponseEntity.ok(DiaryListResponse.from(diaries));
+    }
+
+    // 일기 수정
     @PatchMapping("/diaries/{diaryId}")
     ResponseEntity<DetailDiaryResponse> updateDiary(
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId,
@@ -71,6 +84,7 @@ public class DiaryController {
         return ResponseEntity.ok(DetailDiaryResponse.from(updateDiary));
     }
 
+    // 일기 삭제
     @DeleteMapping("/diaries/{diaryId}")
     ResponseEntity<DiaryResponse> deleteDiary(
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId

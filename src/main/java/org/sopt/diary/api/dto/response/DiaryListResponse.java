@@ -13,7 +13,7 @@ public record DiaryListResponse(List<DiaryResponse> diaries) {
     // Diary 리스트를 받아 DiaryResponse 리스트로 변환
     public static DiaryListResponse from(List<Diary> diaries) {
         List<DiaryResponse> diaryResponses = diaries.stream()
-                .map(diary -> new DiaryResponse(diary.getId(), diary.getTitle()))
+                .map(diary -> new DiaryResponse(diary.getId(), diary.getTitle(), diary.getCreatedAt(), diary.getNickname()))
                 .collect(Collectors.toList());
         return new DiaryListResponse(diaryResponses);
     }

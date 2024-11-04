@@ -19,6 +19,13 @@ public class Diary {
         this.title = title;
     }
 
+    public Diary(long id, String title, LocalDateTime createdAt, String nickname){
+        this.id = id;
+        this.title = title;
+        this.createdAt = createdAt;
+        this.nickname = nickname;
+    }
+
     public Diary(long id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, String category, String nickname) {
         this.id = id;
         this.title = title;

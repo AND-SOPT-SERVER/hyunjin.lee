@@ -73,6 +73,6 @@ public class DiaryEntity {
 
     // 카테고리 Enum
     public enum Category {
-        FOOD, TRAVEL, DAILY, HOBBY, STUDY, ETC
+        FOOD, SCHOOL, STUDY, EXERCISE
     }
 }

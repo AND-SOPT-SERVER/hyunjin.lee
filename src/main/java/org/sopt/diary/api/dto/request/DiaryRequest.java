@@ -7,11 +7,11 @@ import org.sopt.diary.domain.entity.DiaryEntity.Category;
 
 public class DiaryRequest {
     @NotBlank(message = "제목을 입력해주세요.")
-    @Size(max = 30, message = "제목은 30자를 초과할 수 없습니다.")
+    @Size(max = 10, message = "제목은 10자를 초과할 수 없습니다.")
     private final String title;
 
     @NotBlank(message = "내용을 입력해주세요.")
-    @Size(max = 100, message = "내용은 100자를 초과할 수 없습니다.")
+    @Size(max = 30, message = "내용은 30자를 초과할 수 없습니다.")
     private final String content;
 
     private final Category category;

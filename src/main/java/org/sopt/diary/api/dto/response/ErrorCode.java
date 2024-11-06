@@ -2,9 +2,11 @@ package org.sopt.diary.api.dto.response;
 
 public enum ErrorCode {
     INVALID_INPUT_VALUE(40001, "유효하지 않은 요청입니다."),
+    INVALID_INPUT_CATEGORY_VALUE(40002,"카테고리는 필수 항목입니다."),
     INVALID_INPUT_TITLE_DUPLICATE(40003, "이미 존재하는 제목입니다."),
     DIARY_NOT_FOUND(40004, "존재하지 않는 다이어리입니다."),
     USER_NOT_FOUND(40005, "존재하지 않는 사용자입니다."),
+    CATEGORY_NOT_FOUND(40007, "존재하지 않는 카테고리입니다."),
     USERNAME_ALREADY_EXISTS(40900, "이미 존재하는 아이디입니다."),
     NICKNAME_ALREADY_EXISTS(40901, "이미 존재하는 닉네임입니다."),
     INVALID_PASSWORD(40100, "비밀번호가 일치하지 않습니다."),

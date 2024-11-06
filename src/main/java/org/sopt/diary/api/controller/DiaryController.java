@@ -5,7 +5,10 @@ import org.sopt.diary.api.dto.request.DiaryRequest;
 import org.sopt.diary.api.dto.response.DetailDiaryResponse;
 import org.sopt.diary.api.dto.response.DiaryListResponse;
 import org.sopt.diary.api.dto.response.DiaryResponse;
+import org.sopt.diary.api.dto.response.ErrorCode;
+import org.sopt.diary.api.exception.DiaryException;
 import org.sopt.diary.domain.Diary;
+import org.sopt.diary.domain.entity.DiaryEntity.Category;
 import org.sopt.diary.service.DiaryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +39,7 @@ public class DiaryController {
         long diaryId = diaryService.createDiary(
                 diaryRequest.getTitle(),
                 diaryRequest.getContent(),
-                diaryRequest.getCategory(),
+                validateCreateCategory(diaryRequest.getCategory()),
                 diaryRequest.getIsPublic(),
                 memberId
         );
@@ -45,8 +48,20 @@ public class DiaryController {
 
     // 전체 일기 리스트 조회
     @GetMapping("/diaries")
-    ResponseEntity<DiaryListResponse> getDiaryList() {
-        List<Diary> diaries = diaryService.getDiaries();
+    ResponseEntity<DiaryListResponse> getDiaryList(
+            @RequestParam(value = "category", required = false) String category
+    ) {
+        List<Diary> diaries = diaryService.getDiaries(validateGetCategory(category));
+        return ResponseEntity.ok(DiaryListResponse.from(diaries));
+    }
+
+    // 특정 사용자의 일기 목록 조회
+    @GetMapping("/diaries/me")
+    ResponseEntity<DiaryListResponse> getMyDiaryList(
+            @RequestHeader("Member-Id") Long memberId,
+            @RequestParam(value = "category", required = false) String category
+    ) {
+        List<Diary> diaries = diaryService.getMyDiaries(memberId, validateGetCategory(category));
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
@@ -57,15 +72,6 @@ public class DiaryController {
     ) {
         Diary diary = diaryService.getDiaryDetailById(diaryId);
         return ResponseEntity.ok(DetailDiaryResponse.from(diary));
-    }
-
-    // 특정 사용자의 일기 목록 조회
-    @GetMapping("diaries/me")
-    ResponseEntity<DiaryListResponse> getMyDiaryList(
-            @RequestHeader("Member-Id") Long memberId
-            ) {
-        List<Diary> diaries = diaryService.getMyDiaries(memberId);
-        return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
     // 일기 수정
@@ -92,6 +98,29 @@ public class DiaryController {
         // 다이어리 삭제
         diaryService.deleteDiary(diaryId);
         return ResponseEntity.ok().build();
+    }
+
+    // 카테고리 유효성 검사 메서드 (POST에서 사용, null 불가)
+    private Category validateCreateCategory(String category) {
+        if (category == null) {
+            throw new DiaryException(ErrorCode.INVALID_INPUT_CATEGORY_VALUE);
+        }
+        return validateCategory(category);
+    }
+
+    // 카테고리 유효성 검사 메서드 (GET에서 사용, null 허용)
+    private Category validateGetCategory(String category) {
+        if (category == null) return null;
+        return validateCategory(category);
+    }
+
+    // 카테고리 값을 검증하고 변환하는 메서드
+    private Category validateCategory(String categoryName) {
+        try {
+            return Category.valueOf(categoryName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new DiaryException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
     }
 }
 

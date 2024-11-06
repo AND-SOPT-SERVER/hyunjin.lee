@@ -3,7 +3,6 @@ package org.sopt.diary.api.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.sopt.diary.domain.entity.DiaryEntity.Category;
 
 public class DiaryRequest {
     @NotBlank(message = "제목을 입력해주세요.")
@@ -14,10 +13,10 @@ public class DiaryRequest {
     @Size(max = 30, message = "내용은 30자를 초과할 수 없습니다.")
     private final String content;
 
-    private final Category category;
+    private final String category;
     private final Boolean isPublic;
 
-    public DiaryRequest(String title, String content, Category category, Boolean isPublic) {
+    public DiaryRequest(String title, String content, String category, Boolean isPublic) {
         this.title = title;
         this.content = content;
         this.category = category;
@@ -26,6 +25,6 @@ public class DiaryRequest {
 
     public String getTitle() { return title; }
     public String getContent() { return content; }
-    public Category getCategory() { return category; }
+    public String getCategory() { return category; }
     public Boolean getIsPublic() { return isPublic; }
 }

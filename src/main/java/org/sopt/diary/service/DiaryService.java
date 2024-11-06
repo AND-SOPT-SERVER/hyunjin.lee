@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class DiaryService {
-    private static final int MAX_TITLE_LENGTH = 30;
-    private static final int MAX_CONTENT_LENGTH = 100;
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
 
@@ -45,17 +43,30 @@ public class DiaryService {
     }
 
     // 일기 전체 조회
-    public List<Diary> getDiaries() {
+    public List<Diary> getDiaries(Category category) {
         // 다이어리 목록을 조회하고 엔티티에서 도메인 모델로 변환
-        return diaryRepository.findTop10ByIsPublicTrueOrderByCreatedAtDesc().stream()
+        List<DiaryEntity> diaryEntities;
+        if(category == null){
+            diaryEntities = diaryRepository.findTop10ByIsPublicTrueOrderByCreatedAtDesc();
+        } else{
+            diaryEntities = diaryRepository.findTop10ByCategoryAndIsPublicTrueOrderByCreatedAtDesc(category);
+        }
+        return diaryEntities.stream()
                 .map(entity -> new Diary(entity.getId(), entity.getTitle(), entity.createdAt, entity.getNickname()))
                 .collect(Collectors.toList());
     }
 
     // 특정 사용자의 일기 목록 조회
-    public List<Diary> getMyDiaries(Long memberId) {
+    public List<Diary> getMyDiaries(Long memberId, Category category) {
         SoptMember member = findMemberOrThrow(memberId);
-        return diaryRepository.findTop10ByMemberOrderByCreatedAtDesc(member).stream()
+        // 다이어리 목록을 조회하고 엔티티에서 도메인 모델로 변환
+        List<DiaryEntity> diaryEntities;
+        if(category == null){
+            diaryEntities = diaryRepository.findTop10ByMemberOrderByCreatedAtDesc(member);
+        } else{
+            diaryEntities = diaryRepository.findTop10ByCategoryAndMemberOrderByCreatedAtDesc(category, member);
+        }
+        return diaryEntities.stream()
                 .map(entity -> new Diary(entity.getId(), entity.getTitle()))
                 .collect(Collectors.toList());
     }

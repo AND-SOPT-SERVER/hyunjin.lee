@@ -1,7 +1,7 @@
 package org.sopt.diary.domain.repository;
 
 import org.sopt.diary.domain.entity.DiaryEntity;
-import org.sopt.diary.domain.entity.DiaryEntity.Category;
+import org.sopt.diary.domain.entity.Category;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;

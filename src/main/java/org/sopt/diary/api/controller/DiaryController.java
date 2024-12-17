@@ -6,13 +6,12 @@ import org.sopt.diary.api.dto.request.DiaryRequest;
 import org.sopt.diary.api.dto.response.DetailDiaryResponse;
 import org.sopt.diary.api.dto.response.DiaryListResponse;
 import org.sopt.diary.api.dto.response.DiaryResponse;
-import org.sopt.diary.api.dto.response.ErrorCode;
-import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.config.auth.LoginMember;
 import org.sopt.diary.domain.Diary;
-import org.sopt.diary.domain.entity.DiaryEntity.Category;
+import org.sopt.diary.domain.entity.Category;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.service.DiaryService;
+import org.sopt.diary.util.CategoryConverter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +42,7 @@ public class DiaryController {
         long diaryId = diaryService.createDiary(
                 diaryRequest.title(),
                 diaryRequest.content(),
-                validateCreateCategory(diaryRequest.category()),
+                diaryRequest.category(),
                 diaryRequest.isPublic(),
                 member.getId()
         );
@@ -53,9 +52,10 @@ public class DiaryController {
     // 전체 일기 리스트 조회
     @GetMapping("/diaries")
     ResponseEntity<DiaryListResponse> getDiaryList(
-            @RequestParam(value = "category", required = false) String category
+            @RequestParam(value = "category", required = false) String categoryParam
     ) {
-        List<Diary> diaries = diaryService.getDiaries(validateGetCategory(category));
+        Category category = CategoryConverter.convert(categoryParam);
+        List<Diary> diaries = diaryService.getDiaries(category);
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
@@ -63,9 +63,10 @@ public class DiaryController {
     @GetMapping("/diaries/me")
     ResponseEntity<DiaryListResponse> getMyDiaryList(
             @LoginMember SoptMember member,
-            @RequestParam(value = "category", required = false) String category
+            @RequestParam(value = "category", required = false) String categoryParam
     ) {
-        List<Diary> diaries = diaryService.getMyDiaries(member.getId(), validateGetCategory(category));
+        Category category = CategoryConverter.convert(categoryParam);
+        List<Diary> diaries = diaryService.getMyDiaries(member.getId(), category);
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
@@ -102,29 +103,6 @@ public class DiaryController {
         // 다이어리 삭제
         diaryService.deleteDiary(diaryId);
         return ResponseEntity.ok().build();
-    }
-
-    // 카테고리 유효성 검사 메서드 (POST에서 사용, null 불가)
-    private Category validateCreateCategory(String category) {
-        if (category == null) {
-            throw new GlobalException(ErrorCode.INVALID_INPUT_CATEGORY_VALUE);
-        }
-        return validateCategory(category);
-    }
-
-    // 카테고리 유효성 검사 메서드 (GET에서 사용, null 허용)
-    private Category validateGetCategory(String category) {
-        if (category == null) return null;
-        return validateCategory(category);
-    }
-
-    // 카테고리 값을 검증하고 변환하는 메서드
-    private Category validateCategory(String categoryName) {
-        try {
-            return Category.valueOf(categoryName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new GlobalException(ErrorCode.CATEGORY_NOT_FOUND);
-        }
     }
 }
 

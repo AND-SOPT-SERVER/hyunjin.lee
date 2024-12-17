@@ -53,9 +53,4 @@ public class DiaryEntity extends BaseEntity {
     public String getContent() { return content; }
     public String getCategory() { return category.toString(); }
     public String getNickname() { return member.getNickname(); }
-
-    // 카테고리 Enum
-    public enum Category {
-        FOOD, SCHOOL, STUDY, EXERCISE
-    }
 }

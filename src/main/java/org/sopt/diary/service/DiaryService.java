@@ -4,7 +4,7 @@ import org.sopt.diary.api.dto.response.ErrorCode;
 import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.entity.DiaryEntity;
-import org.sopt.diary.domain.entity.DiaryEntity.Category;
+import org.sopt.diary.domain.entity.Category;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.domain.repository.DiaryRepository;
 import org.springframework.stereotype.Component;
@@ -51,7 +51,7 @@ public class DiaryService {
             diaryEntities = diaryRepository.findTop10ByCategoryAndIsPublicTrueOrderByCreatedAtDesc(category);
         }
         return diaryEntities.stream()
-                .map(entity -> new Diary(entity.getId(), entity.getTitle(), entity.createdAt, entity.getNickname()))
+                .map(entity -> new Diary(entity.getId(), entity.getTitle(), entity.getCreatedAt(), entity.getNickname()))
                 .collect(Collectors.toList());
     }
 

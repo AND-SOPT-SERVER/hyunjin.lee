@@ -1,7 +1,10 @@
 package org.sopt.diary.service;
 
+import org.sopt.diary.api.dto.request.LoginRequest;
+import org.sopt.diary.api.dto.request.SignupRequest;
 import org.sopt.diary.api.dto.response.ErrorCode;
-import org.sopt.diary.api.exception.DiaryException;
+import org.sopt.diary.api.dto.response.MemberResponse;
+import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.domain.repository.MemberRepository;
 import org.springframework.stereotype.Component;
@@ -15,27 +18,31 @@ public class MemberService {
     }
 
     // 회원가입
-    public Long signupUser(String username, String password, String nickname, Integer age) {
-        if (memberRepository.existsByUsername(username)) {
-            throw new DiaryException(ErrorCode.USERNAME_ALREADY_EXISTS);
+    public Long signupUser(SignupRequest signupRequest) {
+        if (memberRepository.existsByUsername(signupRequest.username())) {
+            throw new GlobalException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
-        if (memberRepository.existsByNickname(nickname)) {
-            throw new DiaryException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        if (memberRepository.existsByNickname(signupRequest.nickname())) {
+            throw new GlobalException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
-        SoptMember newUser = new SoptMember(username, password, nickname, age);
-        return memberRepository.save(newUser).getId();
+        SoptMember newUser = memberRepository.save(signupRequest.toMember());
+        return newUser.getId();
     }
 
     // 로그인
-    public Long loginUser(String username, String password) {
-        SoptMember user = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new DiaryException(ErrorCode.USER_NOT_FOUND));
+    public MemberResponse loginUser(LoginRequest loginRequest) {
+        SoptMember member = memberRepository.findByUsername(loginRequest.username())
+                .orElseThrow(() -> new GlobalException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getPassword().equals(password)) {
-            throw new DiaryException(ErrorCode.INVALID_PASSWORD);
-        }
+        member.verifyPassword(loginRequest.password());
+        return new MemberResponse(member);
+    }
 
-        return user.getId();
+    // Member ID로 멤버 조회
+    public SoptMember findMemberOrThrow(final Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(
+                () -> new GlobalException(ErrorCode.USER_NOT_FOUND)
+        );
     }
 }

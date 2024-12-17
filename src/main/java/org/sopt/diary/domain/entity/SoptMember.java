@@ -1,6 +1,8 @@
 package org.sopt.diary.domain.entity;
 
 import jakarta.persistence.*;
+import org.sopt.diary.api.dto.response.ErrorCode;
+import org.sopt.diary.api.exception.GlobalException;
 
 @Entity
 public class SoptMember {
@@ -32,7 +34,12 @@ public class SoptMember {
     // Getters and setters
     public Long getId() { return id; }
     public String getUsername() { return username; }
-    public String getPassword() { return password; }
     public String getNickname() { return nickname; }
     public Integer getAge() { return age; }
+
+    public void verifyPassword(String password) {
+        if (!password.equals(this.password)) {
+            throw new GlobalException(ErrorCode.INVALID_PASSWORD);
+        }
+    }
 }

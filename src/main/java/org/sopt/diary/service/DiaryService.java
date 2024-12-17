@@ -1,13 +1,12 @@
 package org.sopt.diary.service;
 
 import org.sopt.diary.api.dto.response.ErrorCode;
-import org.sopt.diary.api.exception.DiaryException;
+import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.entity.DiaryEntity;
 import org.sopt.diary.domain.entity.DiaryEntity.Category;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.domain.repository.DiaryRepository;
-import org.sopt.diary.domain.repository.MemberRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,21 +18,21 @@ import java.util.stream.Collectors;
 @Component
 public class DiaryService {
     private final DiaryRepository diaryRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public DiaryService(DiaryRepository diaryRepository, MemberRepository memberRepository) {
+    public DiaryService(DiaryRepository diaryRepository, MemberService memberService) {
         this.diaryRepository = diaryRepository;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     // 일기 작성
     public Long createDiary(String title, String content, Category category, Boolean isPublic, Long memberId) {
         // 존재하는 멤버인지 체크
-        SoptMember soptMember = findMemberOrThrow(memberId);
+        SoptMember soptMember = memberService.findMemberOrThrow(memberId);
 
         // 제목 중복체크
         if (diaryRepository.existsByTitle(title)) {
-            throw new DiaryException(ErrorCode.INVALID_INPUT_TITLE_DUPLICATE);
+            throw new GlobalException(ErrorCode.INVALID_INPUT_TITLE_DUPLICATE);
         }
 
         DiaryEntity savedDiary = diaryRepository.save(
@@ -58,7 +57,7 @@ public class DiaryService {
 
     // 특정 사용자의 일기 목록 조회
     public List<Diary> getMyDiaries(Long memberId, Category category) {
-        SoptMember member = findMemberOrThrow(memberId);
+        SoptMember member = memberService.findMemberOrThrow(memberId);
         // 다이어리 목록을 조회하고 엔티티에서 도메인 모델로 변환
         List<DiaryEntity> diaryEntities;
         if(category == null){
@@ -88,7 +87,7 @@ public class DiaryService {
         DiaryEntity diaryEntity = findDiaryOrThrow(diaryId);
 
         // 존재하는 멤버인지 체크
-        findMemberOrThrow(memberId);
+        memberService.findMemberOrThrow(memberId);
 
         // 제목, 내용, 수정 시간 갱신
         diaryEntity.updateDiary(title, content);
@@ -111,14 +110,7 @@ public class DiaryService {
     // 다이어리 ID로 일기 조회
     private DiaryEntity findDiaryOrThrow(final Long diaryId) {
         return diaryRepository.findById(diaryId).orElseThrow(
-                () -> new DiaryException(ErrorCode.INVALID_INPUT_VALUE)
-        );
-    }
-
-    // Member ID로 멤버 조회
-    private SoptMember findMemberOrThrow(final Long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(
-                () -> new DiaryException(ErrorCode.USER_NOT_FOUND)
+                () -> new GlobalException(ErrorCode.INVALID_INPUT_VALUE)
         );
     }
 }

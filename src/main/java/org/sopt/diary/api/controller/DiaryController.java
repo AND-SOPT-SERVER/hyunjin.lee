@@ -1,12 +1,13 @@
 package org.sopt.diary.api.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.sopt.diary.api.dto.request.DiaryRequest;
 import org.sopt.diary.api.dto.response.DetailDiaryResponse;
 import org.sopt.diary.api.dto.response.DiaryListResponse;
 import org.sopt.diary.api.dto.response.DiaryResponse;
 import org.sopt.diary.api.dto.response.ErrorCode;
-import org.sopt.diary.api.exception.DiaryException;
+import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.entity.DiaryEntity.Category;
 import org.sopt.diary.service.DiaryService;
@@ -20,6 +21,7 @@ import java.util.List;
 RESTful API를 정의하는 컨트롤러 클래스
 클라이언트 요청을 처리하고, 서비스 계층을 호출하여 결과를 반환
 */
+@Validated
 @RestController
 @RequestMapping("/luckybicky")
 public class DiaryController {
@@ -33,14 +35,14 @@ public class DiaryController {
     @PostMapping("/diaries")
     ResponseEntity<DiaryResponse> post(
             @RequestHeader("Member-Id") Long memberId,
-            @Validated @RequestBody DiaryRequest diaryRequest
+            @Valid @RequestBody DiaryRequest diaryRequest
     ) {
         // 다이어리 생성
         long diaryId = diaryService.createDiary(
-                diaryRequest.getTitle(),
-                diaryRequest.getContent(),
-                validateCreateCategory(diaryRequest.getCategory()),
-                diaryRequest.getIsPublic(),
+                diaryRequest.title(),
+                diaryRequest.content(),
+                validateCreateCategory(diaryRequest.category()),
+                diaryRequest.isPublic(),
                 memberId
         );
         return ResponseEntity.ok(new DiaryResponse(diaryId));
@@ -79,12 +81,12 @@ public class DiaryController {
     ResponseEntity<DetailDiaryResponse> updateDiary(
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId,
             @RequestHeader("Member-Id") Long memberId,
-            @Validated @RequestBody DiaryRequest diaryRequest)
+            @Valid @RequestBody DiaryRequest diaryRequest)
     {
         Diary updateDiary = diaryService.updateDiary(
                 diaryId,
-                diaryRequest.getTitle(),
-                diaryRequest.getContent(),
+                diaryRequest.title(),
+                diaryRequest.content(),
                 memberId
         );
         return ResponseEntity.ok(DetailDiaryResponse.from(updateDiary));
@@ -103,7 +105,7 @@ public class DiaryController {
     // 카테고리 유효성 검사 메서드 (POST에서 사용, null 불가)
     private Category validateCreateCategory(String category) {
         if (category == null) {
-            throw new DiaryException(ErrorCode.INVALID_INPUT_CATEGORY_VALUE);
+            throw new GlobalException(ErrorCode.INVALID_INPUT_CATEGORY_VALUE);
         }
         return validateCategory(category);
     }
@@ -119,7 +121,7 @@ public class DiaryController {
         try {
             return Category.valueOf(categoryName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new DiaryException(ErrorCode.CATEGORY_NOT_FOUND);
+            throw new GlobalException(ErrorCode.CATEGORY_NOT_FOUND);
         }
     }
 }

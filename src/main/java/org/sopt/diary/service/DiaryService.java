@@ -3,14 +3,13 @@ package org.sopt.diary.service;
 import org.sopt.diary.api.dto.response.ErrorCode;
 import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.Diary;
-import org.sopt.diary.domain.entity.DiaryEntity;
 import org.sopt.diary.domain.entity.Category;
+import org.sopt.diary.domain.entity.DiaryEntity;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.domain.repository.DiaryRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /*
 서비스를 처리하는 클래스
@@ -52,7 +51,7 @@ public class DiaryService {
         }
         return diaryEntities.stream()
                 .map(entity -> new Diary(entity.getId(), entity.getTitle(), entity.getCreatedAt(), entity.getNickname()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 특정 사용자의 일기 목록 조회
@@ -67,7 +66,7 @@ public class DiaryService {
         }
         return diaryEntities.stream()
                 .map(entity -> new Diary(entity.getId(), entity.getTitle()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // 일기 상세 조회

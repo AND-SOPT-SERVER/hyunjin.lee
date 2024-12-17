@@ -24,11 +24,16 @@ public class SoptMember {
 
     public SoptMember() {}
 
-    public SoptMember(String username, String password, String nickname, Integer age) {
+    public SoptMember(Long id, String username, String password, String nickname, Integer age) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.age = age;
+    }
+
+    public SoptMember(String username, String password, String nickname, Integer age) {
+        this(null, username, password, nickname, age);
     }
 
     // Getters and setters

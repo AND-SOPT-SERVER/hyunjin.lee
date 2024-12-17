@@ -8,8 +8,10 @@ import org.sopt.diary.api.dto.response.DiaryListResponse;
 import org.sopt.diary.api.dto.response.DiaryResponse;
 import org.sopt.diary.api.dto.response.ErrorCode;
 import org.sopt.diary.api.exception.GlobalException;
+import org.sopt.diary.config.auth.LoginMember;
 import org.sopt.diary.domain.Diary;
 import org.sopt.diary.domain.entity.DiaryEntity.Category;
+import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.service.DiaryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -34,7 +36,7 @@ public class DiaryController {
     // 일기 작성
     @PostMapping("/diaries")
     ResponseEntity<DiaryResponse> post(
-            @RequestHeader("Member-Id") Long memberId,
+            @LoginMember SoptMember member,
             @Valid @RequestBody DiaryRequest diaryRequest
     ) {
         // 다이어리 생성
@@ -43,7 +45,7 @@ public class DiaryController {
                 diaryRequest.content(),
                 validateCreateCategory(diaryRequest.category()),
                 diaryRequest.isPublic(),
-                memberId
+                member.getId()
         );
         return ResponseEntity.ok(new DiaryResponse(diaryId));
     }
@@ -60,10 +62,10 @@ public class DiaryController {
     // 특정 사용자의 일기 목록 조회
     @GetMapping("/diaries/me")
     ResponseEntity<DiaryListResponse> getMyDiaryList(
-            @RequestHeader("Member-Id") Long memberId,
+            @LoginMember SoptMember member,
             @RequestParam(value = "category", required = false) String category
     ) {
-        List<Diary> diaries = diaryService.getMyDiaries(memberId, validateGetCategory(category));
+        List<Diary> diaries = diaryService.getMyDiaries(member.getId(), validateGetCategory(category));
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
@@ -79,15 +81,15 @@ public class DiaryController {
     // 일기 수정
     @PatchMapping("/diaries/{diaryId}")
     ResponseEntity<DetailDiaryResponse> updateDiary(
+            @LoginMember SoptMember member,
             @PathVariable @Min(value = 1L, message = "다이어리 식별자는 양수로 이루어져야 합니다.") long diaryId,
-            @RequestHeader("Member-Id") Long memberId,
             @Valid @RequestBody DiaryRequest diaryRequest)
     {
         Diary updateDiary = diaryService.updateDiary(
                 diaryId,
                 diaryRequest.title(),
                 diaryRequest.content(),
-                memberId
+                member.getId()
         );
         return ResponseEntity.ok(DetailDiaryResponse.from(updateDiary));
     }

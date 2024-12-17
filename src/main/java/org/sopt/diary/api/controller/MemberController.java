@@ -22,17 +22,17 @@ public class MemberController {
 
     @PostMapping("/signup")
     public ResponseEntity<MemberResponse> signup(
-            @Valid @RequestBody SignupRequest memberRequest
+            @Valid @RequestBody SignupRequest signupRequest
     ) {
-        Long memberId = memberService.signupUser(memberRequest.getUsername(), memberRequest.getPassword(), memberRequest.getNickname(), memberRequest.getAge());
+        Long memberId = memberService.signupUser(signupRequest.username(), signupRequest.password(), signupRequest.nickname(), signupRequest.age());
         return ResponseEntity.ok(new MemberResponse(memberId));
     }
 
     @PostMapping("/login")
     public ResponseEntity<MemberResponse> login(
-            @Valid @RequestBody LoginRequest memberRequest
+            @Valid @RequestBody LoginRequest loginRequest
     ) {
-        Long memberId = memberService.loginUser(memberRequest.getUsername(), memberRequest.getPassword());
+        Long memberId = memberService.loginUser(loginRequest.username(), loginRequest.password());
         return ResponseEntity.ok(new MemberResponse(memberId));
     }
 }

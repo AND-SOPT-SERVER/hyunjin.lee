@@ -1,5 +1,7 @@
 package org.sopt.diary.config.auth;
 
+import org.sopt.diary.api.dto.response.ErrorCode;
+import org.sopt.diary.api.exception.GlobalException;
 import org.sopt.diary.domain.entity.SoptMember;
 import org.sopt.diary.service.MemberService;
 import org.springframework.core.MethodParameter;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.Optional;
 
 @Component
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
@@ -32,11 +36,12 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
             WebDataBinderFactory binderFactory
     ) {
         String memberIdHeader = webRequest.getHeader("Member-Id");
-        if (memberIdHeader == null) {
-            throw new IllegalArgumentException("Member-Id 헤더가 필요합니다.");
-        }
 
-        Long memberId = Long.valueOf(memberIdHeader);
+        Long memberId = Optional.ofNullable(memberIdHeader)
+                .filter(id -> id.matches("\\d+"))
+                .map(Long::valueOf)
+                .orElseThrow(() -> new GlobalException(ErrorCode.INVALID_INPUT_VALUE));
+
         return memberService.findMemberOrThrow(memberId); // 서비스에서 사용자 조회
     }
 }

@@ -20,11 +20,11 @@ public class SoptMember {
     private String nickname;
 
     @Column(nullable = false)
-    private Integer age;
+    private int age;
 
     public SoptMember() {}
 
-    public SoptMember(Long id, String username, String password, String nickname, Integer age) {
+    public SoptMember(Long id, String username, String password, String nickname, int age) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -32,7 +32,7 @@ public class SoptMember {
         this.age = age;
     }
 
-    public SoptMember(String username, String password, String nickname, Integer age) {
+    public SoptMember(String username, String password, String nickname, int age) {
         this(null, username, password, nickname, age);
     }
 

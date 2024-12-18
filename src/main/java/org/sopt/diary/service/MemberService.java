@@ -18,7 +18,7 @@ public class MemberService {
     }
 
     // 회원가입
-    public Long signupUser(SignupRequest signupRequest) {
+    public long signupUser(SignupRequest signupRequest) {
         if (memberRepository.existsByUsername(signupRequest.username())) {
             throw new GlobalException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }

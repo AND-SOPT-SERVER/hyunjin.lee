@@ -31,7 +31,7 @@ public class DiaryEntity extends BaseEntity {
     private Boolean isPublic;
 
     // 생성자
-    public DiaryEntity() { }
+    protected DiaryEntity() { }
 
     public DiaryEntity(String title, String content, Category category, Boolean isPublic, SoptMember member) {
         this.title = title;

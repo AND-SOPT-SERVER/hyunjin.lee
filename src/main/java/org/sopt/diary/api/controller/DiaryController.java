@@ -44,7 +44,7 @@ public class DiaryController {
                 diaryRequest.content(),
                 diaryRequest.category(),
                 diaryRequest.isPublic(),
-                member.getId()
+                member
         );
         return ResponseEntity.ok(new DiaryResponse(diaryId));
     }
@@ -66,7 +66,7 @@ public class DiaryController {
             @RequestParam(value = "category", required = false) String categoryParam
     ) {
         Category category = CategoryConverter.convert(categoryParam);
-        List<Diary> diaries = diaryService.getMyDiaries(member.getId(), category);
+        List<Diary> diaries = diaryService.getMyDiaries(member, category);
         return ResponseEntity.ok(DiaryListResponse.from(diaries));
     }
 
@@ -90,7 +90,7 @@ public class DiaryController {
                 diaryId,
                 diaryRequest.title(),
                 diaryRequest.content(),
-                member.getId()
+                member
         );
         return ResponseEntity.ok(DetailDiaryResponse.from(updateDiary));
     }

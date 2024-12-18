@@ -17,18 +17,13 @@ import java.util.List;
 @Component
 public class DiaryService {
     private final DiaryRepository diaryRepository;
-    private final MemberService memberService;
 
-    public DiaryService(DiaryRepository diaryRepository, MemberService memberService) {
+    public DiaryService(DiaryRepository diaryRepository) {
         this.diaryRepository = diaryRepository;
-        this.memberService = memberService;
     }
 
     // 일기 작성
-    public Long createDiary(String title, String content, Category category, Boolean isPublic, Long memberId) {
-        // 존재하는 멤버인지 체크
-        SoptMember soptMember = memberService.findMemberOrThrow(memberId);
-
+    public Long createDiary(String title, String content, Category category, Boolean isPublic, SoptMember soptMember) {
         // 제목 중복체크
         if (diaryRepository.existsByTitle(title)) {
             throw new GlobalException(ErrorCode.INVALID_INPUT_TITLE_DUPLICATE);
@@ -55,14 +50,13 @@ public class DiaryService {
     }
 
     // 특정 사용자의 일기 목록 조회
-    public List<Diary> getMyDiaries(Long memberId, Category category) {
-        SoptMember member = memberService.findMemberOrThrow(memberId);
+    public List<Diary> getMyDiaries(SoptMember soptMember, Category category) {
         // 다이어리 목록을 조회하고 엔티티에서 도메인 모델로 변환
         List<DiaryEntity> diaryEntities;
         if(category == null){
-            diaryEntities = diaryRepository.findTop10ByMemberOrderByCreatedAtDesc(member);
+            diaryEntities = diaryRepository.findTop10ByMemberOrderByCreatedAtDesc(soptMember);
         } else{
-            diaryEntities = diaryRepository.findTop10ByCategoryAndMemberOrderByCreatedAtDesc(category, member);
+            diaryEntities = diaryRepository.findTop10ByCategoryAndMemberOrderByCreatedAtDesc(category, soptMember);
         }
         return diaryEntities.stream()
                 .map(entity -> new Diary(entity.getId(), entity.getTitle()))
@@ -81,12 +75,14 @@ public class DiaryService {
     }
 
     // 일기 수정
-    public Diary updateDiary(Long diaryId, String title, String content, Long memberId) {
+    public Diary updateDiary(Long diaryId, String title, String content, SoptMember soptMember) {
         // 다이어리 존재 여부 확인
         DiaryEntity diaryEntity = findDiaryOrThrow(diaryId);
 
-        // 존재하는 멤버인지 체크
-        memberService.findMemberOrThrow(memberId);
+        // 작성자 확인
+        if (!diaryEntity.getNickname().equals(soptMember.getNickname())) {
+            throw new GlobalException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         // 제목, 내용, 수정 시간 갱신
         diaryEntity.updateDiary(title, content);

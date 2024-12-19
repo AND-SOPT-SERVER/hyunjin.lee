@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     // DiaryException 발생 시 처리
-    @ExceptionHandler(DiaryException.class)
-    public ResponseEntity<ErrorResponse> handleDiaryException(DiaryException e) {
+    @ExceptionHandler(GlobalException.class)
+    public ResponseEntity<ErrorResponse> handleDiaryException(GlobalException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
     }
